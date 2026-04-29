@@ -49,9 +49,6 @@ technology, and testability before formal test planning.
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
     - When opt-out is enabled, a project admin in a namespace is forbidden from attempting virtualization actions
-    - When opt-out is enabled, a cluster administrator can grant a user an explicit
-      role binding (admin, edit, or view) so that user can create, modify, or view
-      virtual machines and related resources in that namespace
     - Configuration changes take effect without cluster restart
   - *Note any gaps or missing criteria:* None. Defined in CNV-63822 epic.
 
@@ -108,11 +105,12 @@ and schedule.
 
 **Testing Goals**
 
-- **[P0]** Verify a cluster administrator can enable role aggregation opt-out through the cluster configuration and the setting persists
+- **[P0]** Verify a cluster administrator can enable role aggregation opt-out and the setting is applied to the virtualization deployment
+- **[P0]** Verify a cluster administrator can switch the aggregation mode and the change propagates to the virtualization deployment
+- **[P0]** Verify that removing the aggregation configuration resets the virtualization deployment to its original unconfigured state
 - **[P0]** Verify that when opt-out is enabled, an unprivileged user with a project admin role cannot perform virtualization admin actions (receives Forbidden error)
 - **[P0]** Verify that when opt-out is enabled, an unprivileged user with an edit role cannot perform virtualization edit actions (receives Forbidden error)
 - **[P0]** Verify that when opt-out is enabled, an unprivileged user with a view role cannot perform virtualization view actions (receives Forbidden error)
-- **[P0]** Verify that a cluster administrator can explicitly grant virtualization admin, edit, and view permissions to a user when opt-out is enabled, and the user can perform the corresponding actions
 - **[P0]** Verify that disabling opt-out after it was enabled restores automatic access for users who were previously blocked
 
 **Regression Goals**
@@ -152,13 +150,13 @@ None — reviewed and confirmed that no test limitations apply for this release.
 **Functional**
 
 - [x] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
-  - *Details:* Core focus: verify opt-out configuration, RBAC enforcement, explicit grants, and default behavior preservation.
+  - *Details:* Core focus: verify opt-out configuration, RBAC enforcement, and default behavior preservation.
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
   - *Details:* All tier 1 and tier 2 tests automated; tier 1 validates configuration, tier 2 validates end-to-end user workflows.
 
 - [x] **Regression Testing** — Verifies that new changes do not break existing functionality
-  - *Details:* Existing RBAC/migration tests provide regression coverage; standard sig-iuo suites run on feature cluster. Migrate role aggregation is already covered by existing tier 2 regression tests ([test_migration_rights.py](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/virt/cluster/migration_and_maintenance/rbac_hardening/test_migration_rights.py)).
+  - *Details:* Existing RBAC/migration tests provide regression coverage; standard sig-iuo suites run on feature cluster. Migrate role aggregation is already covered by existing tier 2 regression tests ([test_migration_rights.py](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/virt/cluster/migration_and_maintenance/rbac_hardening/test_migration_rights.py)). Verification that virtualization admin, edit, and view roles grant correct permissions is covered by existing upstream tests in KubeVirt ([access_test.go](https://github.com/kubevirt/kubevirt/blob/main/tests/access_test.go)).
 
 **Non-Functional**
 
@@ -169,10 +167,10 @@ None — reviewed and confirmed that no test limitations apply for this release.
   - *Details:* N/A — Kubernetes RBAC scales natively; feature does not introduce new scalability concerns.
 
 - [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* Feature is a security enhancement; tests verify users are correctly blocked and explicit grants work for all 3 role levels.
+  - *Details:* Feature is a security enhancement; tests verify users are correctly blocked when opt-out is enabled for all 3 role levels.
 
-- [x] **Usability Testing** — Validates user experience and accessibility requirements
-  - *Details:* UI changes tracked under [CNV-80935](https://issues.redhat.com/browse/CNV-80935); UI team (sig-ui) owns console testing; QE validates config workflow feedback.
+- [ ] **Usability Testing** — Validates user experience and accessibility requirements
+  - *Details:* UI changes tracked under [CNV-80935](https://issues.redhat.com/browse/CNV-80935); UI team (sig-ui) owns console testing for opt-out configuration.
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
   - *Details:* No new metrics or alerts required; feature uses standard Kubernetes RBAC.
@@ -232,8 +230,8 @@ The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
 - [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
-- [x] KubeVirt PR #16350 **merged** (upstream implementation)
-- [x] HCO downstream implementation **complete** (field integrated into HCO CR)
+- [x] Upstream implementation **merged** (role aggregation opt-out support)
+- [x] Downstream implementation **complete** (configuration field available in cluster settings)
 - [x] Developer Handoff/QE Kickoff meeting completed
 
 #### **5. Risks**
@@ -291,19 +289,16 @@ The following conditions must be met before testing can begin:
 ### **III. Test Scenarios & Traceability**
 
 - **[CNV-63822]** — As a cluster admin, I want to control the role aggregation strategy for virtualization resources
-  - *Test Scenario:* [Tier 1] Verify default behavior is preserved when aggregation strategy is explicitly set to the default mode
+  - *Test Scenario:* [Tier 1] Verify that enabling opt-out mode applies the setting to the virtualization deployment
   - *Priority:* P0
 
-  - *Test Scenario:* [Tier 1] Verify that when opt-out mode is enabled, virtualization roles no longer automatically grant access to users
+  - *Test Scenario:* [Tier 1] Verify that changing the aggregation mode propagates the updated setting to the virtualization deployment
   - *Priority:* P0
 
-  - *Test Scenario:* [Tier 1] Verify that switching from default to opt-out mode removes previously aggregated access from existing roles
+  - *Test Scenario:* [Tier 1] Verify that removing the aggregation configuration resets the virtualization deployment to its original state
   - *Priority:* P0
 
 - **[CNV-63822]** — As a cluster admin, I want to enable opt-out so unprivileged users cannot access virtualization resources
-  - *Test Scenario:* [Tier 2] Verify opt-out can be enabled via cluster configuration and the setting persists
-  - *Priority:* P0
-
   - *Test Scenario:* [Tier 2] Verify an unprivileged user with project admin role cannot perform virtualization admin actions when opt-out is enabled (receives Forbidden error)
   - *Priority:* P0
 
@@ -313,18 +308,8 @@ The following conditions must be met before testing can begin:
   - *Test Scenario:* [Tier 2] Verify an unprivileged user with view role cannot perform virtualization view actions when opt-out is enabled (receives Forbidden error)
   - *Priority:* P0
 
-- **[CNV-63822]** — As a cluster admin, I want to explicitly grant virtualization permissions to specific users
-  - *Test Scenario:* [Tier 2] Verify a cluster admin can grant virtualization admin permissions to a user in a namespace and the user can perform admin actions
-  - *Priority:* P0
-
-  - *Test Scenario:* [Tier 2] Verify a cluster admin can grant virtualization edit permissions to a user in a namespace and the user can perform edit actions
-  - *Priority:* P0
-
-  - *Test Scenario:* [Tier 2] Verify a cluster admin can grant virtualization view permissions to a user in a namespace and the user can view resources
-  - *Priority:* P0
-
 - **[CNV-63822]** — As a cluster admin, I want to disable opt-out to restore default behavior
-  - *Test Scenario:* [Tier 2] Verify that disabling opt-out after it was enabled restores automatic access for users who were previously blocked
+  - *Test Scenario:* [Tier 2] Verify that disabling opt-out restores automatic access for previously blocked users
   - *Priority:* P0
 
 ---
