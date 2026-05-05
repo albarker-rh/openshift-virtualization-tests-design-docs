@@ -37,14 +37,11 @@ technology, and testability before formal test planning.
   - *List the key D/S requirements reviewed:* Cluster admins can limit the access to virtualization components
 
 - [x] **Understand Value and Customer Use Cases**
-  - *Describe the feature's value to customers:* Organizations running multi-tenant clusters
-    need to enforce access policies that prevent unauthorized users from consuming
-    virtualization resources. Without this feature, any project administrator automatically
-    gains full virtualization access, which violates tenant isolation requirements.
-  - *List the customer use cases identified:*
-    - As a cluster administrator managing a multi-tenant cluster, I want to prevent tenants
-      from accessing virtualization workloads they are not eligible to use so that different
-      namespaces can enforce different workload entitlements
+    - *Describe the feature's value to customers:* Enables tenant isolation by requiring                                                                                                                       
+      explicit virtualization access grants instead of automatic role aggregation.                                                                                                                             
+    - *List the customer use cases identified:*                                                                                                                                                                
+      - As a cluster administrator, I want to disable automatic virtualization access                                                                                                                          
+        so that only explicitly authorized users can consume virtualization resources                                                                                                                          
 
 - [x] **Testability**
   - *Note any requirements that are unclear or untestable:* All requirements are testable
