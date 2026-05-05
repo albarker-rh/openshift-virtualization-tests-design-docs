@@ -7,6 +7,10 @@
 - **Enhancement(s):** [Kubevirt VEP](https://github.com/kubevirt/enhancements/issues/160)
 - **Feature Tracking:** [CNV-50792](https://issues.redhat.com/browse/CNV-50792)
 - **Epic Tracking:** [CNV-63822](https://issues.redhat.com/browse/CNV-63822)
+- **Feature Maturity:**
+  - DP: 4.22
+  - TP: 4.23/5.0
+  - GA: 5.1
 - **QE Owner(s):** Ramon Lobillo (@rlobillo), Alex Barker (@albarker-rh)
 - **Owning SIG:** sig-iuo (Install, Upgrade, Operators)
 - **Participating SIGs:** sig-ui
@@ -48,7 +52,7 @@ technology, and testability before formal test planning.
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
-    - When opt-out is enabled, a project admin in a namespace is forbidden from attempting virtualization actions
+    - When opt-out is enabled, users with project admin, edit, or view roles in a namespace are forbidden from attempting virtualization actions
     - Configuration changes take effect without cluster restart
   - *Note any gaps or missing criteria:* None. Defined in CNV-63822 epic.
 
@@ -115,8 +119,7 @@ and schedule.
 
 **Regression Goals**
 
-- **[P0]** Verify default behavior is preserved across OpenShift Virtualization z-stream upgrades — sig-iuo upgrade regression suites run on the feature cluster
-- **[P0]** Verify existing RBAC and migration functionality is not broken by the new feature — sig-iuo regression suites (including RBAC hardening and migration rights tests) run on the feature cluster
+- **[P0]** Verify existing RBAC and migration functionality is not broken by the new feature — tier 2 regression suites run on the feature cluster, including [migration rights tests](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/virt/cluster/migration_and_maintenance/rbac_hardening/test_migration_rights.py)
 
 **Out of Scope (Testing Scope Exclusions)**
 
