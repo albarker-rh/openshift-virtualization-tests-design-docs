@@ -57,7 +57,7 @@ technology, and testability before formal test planning.
     - Security: RBAC hardening — users blocked without explicit grant
     - Backward Compatibility: default unchanged
     - UI: console changes tracked under CNV-80935
-    - Docs: user-facing documentation required
+    - Docs: upstream docs available; downstream docs planned for 4.22
   - *Note any NFRs not covered and why:*
     - Performance: N/A — negligible RBAC overhead
     - Monitoring: N/A — no new metrics/alerts, uses standard Kubernetes RBAC
